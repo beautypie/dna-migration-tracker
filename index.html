@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lightdash Dashboard Shopify Migration Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: #f5f6fa;
+            color: #2d3436;
+            padding: 2rem;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .subtitle {
+            color: #636e72;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .summary {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            flex: 1;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .summary-card .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #636e72;
+        }
+
+        .summary-card .value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-top: 0.25rem;
+        }
+
+        .summary-card .value.small {
+            font-size: 1.1rem;
+        }
+
+        .dashboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .dashboard-row {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            overflow: hidden;
+            cursor: pointer;
+            transition: box-shadow 0.15s;
+        }
+
+        .dashboard-row:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            gap: 1rem;
+        }
+
+        .dashboard-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+            min-width: 240px;
+            flex-shrink: 0;
+        }
+
+        .dashboard-badge {
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .badge-wontdo {
+            background: #ffeaa7;
+            color: #856404;
+        }
+
+        .progress-bar-container {
+            flex: 1;
+            background: #e9ecef;
+            border-radius: 4px;
+            height: 24px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-bar-fill:first-child {
+            border-radius: 4px 0 0 4px;
+        }
+
+        .progress-bar-fill:last-child {
+            border-radius: 0 4px 4px 0;
+        }
+
+        .progress-bar-fill:only-child {
+            border-radius: 4px;
+        }
+
+        .progress-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            min-width: 48px;
+            text-align: right;
+            color: #636e72;
+        }
+
+        .chevron {
+            font-size: 0.7rem;
+            color: #b2bec3;
+            transition: transform 0.2s;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        .dashboard-row.expanded .chevron {
+            transform: rotate(90deg);
+        }
+
+        .tile-list {
+            display: none;
+            padding: 0 1rem 0.75rem 1rem;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .dashboard-row.expanded .tile-list {
+            display: block;
+        }
+
+        .tile-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 0.4rem 0;
+            font-size: 0.85rem;
+            gap: 0.5rem;
+        }
+
+        .tile-item + .tile-item {
+            border-top: 1px solid #f8f9fa;
+        }
+
+        .tile-status {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .tile-status.done {
+            background: #00b894;
+            color: #fff;
+        }
+
+        .tile-status.pending {
+            background: #dfe6e9;
+            color: #b2bec3;
+        }
+
+        .tile-status.wontdo {
+            background: #fdcb6e;
+            color: #856404;
+            font-weight: 700;
+        }
+
+        .tile-name {
+            color: #2d3436;
+        }
+
+        .tile-name.pending {
+            color: #636e72;
+        }
+
+        .tile-name.wontdo {
+            color: #856404;
+            text-decoration: line-through;
+        }
+
+        .tile-note {
+            font-size: 0.78rem;
+            color: #856404;
+            background: #fef9e7;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.15rem;
+            line-height: 1.3;
+        }
+
+        .tile-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Progress bar colours */
+        .progress-migrated { background: #00b894; }
+        .progress-wontdo   { background: #fdcb6e; }
+        .progress-complete  { background: #00b894; }
+        .progress-high      { background: #00cec9; }
+        .progress-mid       { background: #fdcb6e; }
+        .progress-low       { background: #e17055; }
+        .progress-none      { background: #dfe6e9; }
+
+        .last-updated {
+            text-align: right;
+            font-size: 0.75rem;
+            color: #b2bec3;
+            margin-top: 1.5rem;
+        }
+
+        .legend {
+            display: flex;
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.8rem;
+            color: #636e72;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Lightdash Dashboard Shopify Migration Tracker</h1>
+<p class="subtitle">Migration progress from Analytics project to BeautyPie Intelligence project</p>
+
+<div class="summary" id="summary"></div>
+<div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#00b894"></span> Migrated</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#fdcb6e"></span> Deprecated</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#dfe6e9"></span> Pending</span>
+</div>
+<div class="dashboard-list" id="dashboardList"></div>
+<p class="last-updated" id="lastUpdated"></p>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────────────
+// Replace this with your real dashboard/tile data.
+//
+// Tile status:
+//   migrated: true        → done
+//   migrated: false       → pending
+//   migrated: "wontdo"    → deprecated (add optional "note" field to explain why)
+//
+// Dashboard-level deprecated:
+//   Add wontdo: true and optional note to the dashboard object.
+
+const DATA = {
+    lastUpdated: "2026-06-29",
+    dashboards: [
+        {
+            name: "Customer Acquisition",
+            tiles: [
+                { name: "New Customers by Channel", migrated: true },
+                { name: "CAC by Month", migrated: true },
+                { name: "Acquisition Funnel", migrated: false },
+                { name: "First Order Conversion Rate", migrated: "wontdo", note: "Replaced by new funnel dashboard" },
+            ]
+        },
+        {
+            name: "Revenue Overview",
+            tiles: [
+                { name: "Monthly Revenue", migrated: true },
+                { name: "Revenue by Category", migrated: true },
+                { name: "AOV Trend", migrated: true },
+                { name: "Revenue by Country", migrated: true },
+                { name: "Discount Impact", migrated: false },
+            ]
+        },
+        {
+            name: "Membership Performance",
+            tiles: [
+                { name: "Active Members", migrated: true },
+                { name: "Churn Rate", migrated: true },
+                { name: "Rejoin Rate", migrated: true },
+                { name: "LTV by Cohort", migrated: false },
+                { name: "Membership Revenue", migrated: false },
+                { name: "Membership Funnel", migrated: false },
+            ]
+        },
+        {
+            name: "Marketing Channel Mix",
+            tiles: [
+                { name: "Spend by Channel", migrated: false },
+                { name: "ROAS by Channel", migrated: false },
+                { name: "CPA Trend", migrated: false },
+            ]
+        },
+        {
+            name: "Website Performance",
+            tiles: [
+                { name: "Sessions by Source", migrated: true },
+                { name: "Bounce Rate", migrated: true },
+                { name: "Pages per Session", migrated: true },
+                { name: "Conversion Rate", migrated: true },
+            ]
+        },
+        {
+            name: "Product Performance",
+            wontdo: true,
+            note: "Deprecated - replaced by new Product Analytics dashboard",
+            tiles: [
+                { name: "Top Sellers", migrated: "wontdo" },
+                { name: "Category Breakdown", migrated: "wontdo" },
+                { name: "Stock Levels", migrated: "wontdo" },
+                { name: "Return Rate", migrated: "wontdo" },
+                { name: "New Product Sales", migrated: "wontdo" },
+            ]
+        },
+        {
+            name: "Customer Lifetime Value",
+            tiles: [
+                { name: "LTV Distribution", migrated: true },
+                { name: "Repeat Purchase Rate", migrated: true },
+                { name: "Cohort Analysis", migrated: false },
+            ]
+        },
+        {
+            name: "Finance P&L",
+            tiles: [
+                { name: "Gross Revenue", migrated: true },
+                { name: "Net Revenue", migrated: true },
+                { name: "COGS", migrated: false },
+                { name: "Margin by Category", migrated: false },
+            ]
+        },
+    ]
+};
+
+// ── HELPERS ─────────────────────────────────────────────────────────────
+
+function tileStats(dashboard) {
+    const tiles = dashboard.tiles;
+    const migrated = tiles.filter(t => t.migrated === true).length;
+    const wontdo = tiles.filter(t => t.migrated === "wontdo").length;
+    const pending = tiles.filter(t => t.migrated === false).length;
+    const total = tiles.length;
+    const resolved = migrated + wontdo;
+    const pct = total ? Math.round((resolved / total) * 100) : 0;
+    return { migrated, wontdo, pending, total, resolved, pct };
+}
+
+function getProgressClass(pct) {
+    if (pct >= 100) return "progress-complete";
+    if (pct >= 66)  return "progress-high";
+    if (pct >= 33)  return "progress-mid";
+    if (pct > 0)    return "progress-low";
+    return "progress-none";
+}
+
+function dashboardStatus(d) {
+    if (d.wontdo) return "wontdo";
+    const s = tileStats(d);
+    if (s.resolved === s.total) return "complete";
+    if (s.resolved === 0) return "notstarted";
+    return "inprogress";
+}
+
+// ── RENDERING ───────────────────────────────────────────────────────────
+
+function render() {
+    const list = document.getElementById("dashboardList");
+    const summary = document.getElementById("summary");
+
+    let totalTiles = 0;
+    let totalMigrated = 0;
+    let totalWontdo = 0;
+    let completedDashboards = 0;
+    let wontdoDashboards = 0;
+
+    DATA.dashboards.forEach(d => {
+        const s = tileStats(d);
+        totalTiles += s.total;
+        totalMigrated += s.migrated;
+        totalWontdo += s.wontdo;
+        if (d.wontdo) { wontdoDashboards++; }
+        else if (s.resolved === s.total) { completedDashboards++; }
+    });
+
+    const activeDashboards = DATA.dashboards.length - wontdoDashboards;
+    const activeTiles = totalTiles - totalWontdo;
+    const overallPct = activeTiles ? Math.round((totalMigrated / activeTiles) * 100) : 0;
+
+    summary.innerHTML = `
+        <div class="summary-card">
+            <div class="label">Dashboards</div>
+            <div class="value">${completedDashboards} / ${activeDashboards}</div>
+        </div>
+        <div class="summary-card">
+            <div class="label">Tiles Migrated</div>
+            <div class="value">${totalMigrated} / ${activeTiles}</div>
+        </div>
+        <div class="summary-card">
+            <div class="label">Overall Progress</div>
+            <div class="value">${overallPct}%</div>
+        </div>
+        <div class="summary-card">
+            <div class="label">Deprecated</div>
+            <div class="value small">${wontdoDashboards} dashboard${wontdoDashboards !== 1 ? 's' : ''}<br>${totalWontdo} tile${totalWontdo !== 1 ? 's' : ''}</div>
+        </div>
+    `;
+
+    list.innerHTML = "";
+
+    // Sort: in-progress first, then complete, then not started, then deprecated
+    const sortOrder = { inprogress: 0, complete: 1, notstarted: 2, wontdo: 3 };
+    const sorted = [...DATA.dashboards].sort((a, b) => {
+        const statusA = dashboardStatus(a);
+        const statusB = dashboardStatus(b);
+        if (sortOrder[statusA] !== sortOrder[statusB]) {
+            return sortOrder[statusA] - sortOrder[statusB];
+        }
+        return tileStats(b).pct - tileStats(a).pct;
+    });
+
+    sorted.forEach(d => {
+        const s = tileStats(d);
+        const migratedPct = s.total ? (s.migrated / s.total) * 100 : 0;
+        const wontdoPct = s.total ? (s.wontdo / s.total) * 100 : 0;
+
+        const row = document.createElement("div");
+        row.className = "dashboard-row";
+
+        const dashboardBadge = d.wontdo
+            ? `<span class="dashboard-badge badge-wontdo">DEPRECATED</span>`
+            : "";
+
+        const dashboardNote = d.note
+            ? `<div class="tile-note" style="margin: 0.5rem 0">${d.note}</div>`
+            : "";
+
+        row.innerHTML = `
+            <div class="dashboard-header" onclick="this.parentElement.classList.toggle('expanded')">
+                <span class="chevron">&#9654;</span>
+                <span class="dashboard-name">${d.name}${dashboardBadge}</span>
+                <div class="progress-bar-container">
+                    ${migratedPct > 0 ? `<div class="progress-bar-fill progress-migrated" style="width:${migratedPct}%"></div>` : ""}
+                    ${wontdoPct > 0 ? `<div class="progress-bar-fill progress-wontdo" style="width:${wontdoPct}%"></div>` : ""}
+                </div>
+                <span class="progress-label">${s.resolved}/${s.total}</span>
+            </div>
+            <div class="tile-list">
+                ${dashboardNote}
+                ${d.tiles.map(t => {
+                    const isWontdo = t.migrated === "wontdo";
+                    const isDone = t.migrated === true;
+                    const statusClass = isWontdo ? "wontdo" : isDone ? "done" : "pending";
+                    const icon = isDone ? "✓" : isWontdo ? "✕" : "";
+                    const nameClass = isWontdo ? "wontdo" : isDone ? "" : "pending";
+                    const note = t.note ? `<div class="tile-note">${t.note}</div>` : "";
+                    return `
+                        <div class="tile-item">
+                            <span class="tile-status ${statusClass}">${icon}</span>
+                            <div class="tile-content">
+                                <span class="tile-name ${nameClass}">${t.name}</span>
+                                ${note}
+                            </div>
+                        </div>
+                    `;
+                }).join("")}
+            </div>
+        `;
+        list.appendChild(row);
+    });
+
+    document.getElementById("lastUpdated").textContent = `Last updated: ${DATA.lastUpdated}`;
+}
+
+render();
+</script>
+
+</body>
+</html>
