@@ -400,33 +400,178 @@
             height: 12px;
             border-radius: 50%;
         }
+
+        .issue-item-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .issue-item-link:hover .issue-title {
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        /* ── Issue detail page ─────────────────────────── */
+        #issuePage {
+            display: none;
+        }
+
+        #issuePage.active {
+            display: block;
+        }
+
+        #mainView.hidden {
+            display: none;
+        }
+
+        .issue-detail-page {
+            max-width: 680px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.82rem;
+            color: #636e72;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .back-link:hover {
+            color: #2d3436;
+        }
+
+        .issue-detail-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+        }
+
+        .issue-detail-severity {
+            font-size: 0.7rem;
+            font-weight: 700;
+            border-radius: 3px;
+            padding: 0.2rem 0.45rem;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 0.75rem;
+        }
+
+        .issue-detail-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            line-height: 1.35;
+        }
+
+        .issue-detail-meta {
+            font-size: 0.8rem;
+            color: #636e72;
+            margin-bottom: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .issue-detail-body {
+            font-size: 0.88rem;
+            line-height: 1.6;
+            color: #2d3436;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 1rem;
+            white-space: pre-wrap;
+        }
+
+        .issue-detail-table-wrap {
+            border-top: 1px solid #f0f0f0;
+            padding-top: 1rem;
+            margin-top: 0;
+            overflow-x: auto;
+        }
+
+        .issue-detail-table-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #b2bec3;
+            margin-bottom: 0.6rem;
+        }
+
+        .issue-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+
+        .issue-table th {
+            text-align: left;
+            padding: 0.45rem 0.75rem;
+            background: #f8f9fa;
+            color: #636e72;
+            font-weight: 600;
+            font-size: 0.75rem;
+            border-bottom: 2px solid #e9ecef;
+            white-space: nowrap;
+        }
+
+        .issue-table td {
+            padding: 0.45rem 0.75rem;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: top;
+            line-height: 1.4;
+        }
+
+        .issue-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .issue-table tr:hover td {
+            background: #fafafa;
+        }
+
+        .cell-good  { color: #00b894; font-weight: 500; }
+        .cell-bad   { color: #e17055; font-weight: 500; }
+        .cell-muted { color: #b2bec3; }
     </style>
 </head>
 <body>
 
-<h1>Lightdash Dashboard Shopify Migration Tracker</h1>
-<p class="subtitle">Migration progress from legacy Analytics project to new BeautyPie Intelligence project</p>
+<div id="mainView">
+    <h1>Lightdash Dashboard Shopify Migration Tracker</h1>
+    <p class="subtitle">Migration progress from legacy Analytics project to new BeautyPie Intelligence project</p>
 
-<div class="summary" id="summary"></div>
+    <div class="summary" id="summary"></div>
 
-<div class="page-layout">
-    <div class="main-content">
-        <div class="legend">
-            <span class="legend-item"><span class="legend-dot" style="background:#00b894"></span> Migrated</span>
-            <span class="legend-item"><span class="legend-dot" style="background:#fdcb6e"></span> Deprecated</span>
-            <span class="legend-item"><span class="legend-dot" style="background:#dfe6e9"></span> Pending</span>
-        </div>
-        <div class="dashboard-list" id="dashboardList"></div>
-        <p class="last-updated" id="lastUpdated"></p>
-    </div>
-    <div class="sidebar">
-        <div class="issues-panel">
-            <div class="issues-panel-header">
-                <span class="issues-panel-title">Data Issues &amp; Gaps</span>
-                <span class="issues-count" id="issuesCount">0</span>
+    <div class="page-layout">
+        <div class="main-content">
+            <div class="legend">
+                <span class="legend-item"><span class="legend-dot" style="background:#00b894"></span> Migrated</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#fdcb6e"></span> Deprecated</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#dfe6e9"></span> Pending</span>
             </div>
-            <div id="issuesList"></div>
+            <div class="dashboard-list" id="dashboardList"></div>
+            <p class="last-updated" id="lastUpdated"></p>
         </div>
+        <div class="sidebar">
+            <div class="issues-panel">
+                <div class="issues-panel-header">
+                    <span class="issues-panel-title">Data Issues &amp; Gaps</span>
+                    <span class="issues-count" id="issuesCount">0</span>
+                </div>
+                <div id="issuesList"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="issuePage">
+    <div class="issue-detail-page">
+        <a class="back-link" href="#">&#8592; Back to tracker</a>
+        <div class="issue-detail-card" id="issueDetailCard"></div>
     </div>
 </div>
 
@@ -454,7 +599,20 @@ const DATA = {
         {
             severity: "medium",
             title: "iOS app orders mis-attributed post-migration",
-            detail: "Fix in progress — expected within a week.",
+            detail: "Fix in progress - expected within a week.",
+            table: {
+                headers: ["Metric", "Pre-Migration", "Post-Migration (unfixed)", "Change"],
+                rows: [
+                    ["App session conversion rate",             "Accurate",           "Crashes toward 0",                                   "bad:Severe drop - looks like app stopped converting"],
+                    ["App sessions with a purchase",            "Normal",             "Near zero",                                          "bad:"],
+                    ["Web session count",                       "Normal",             "Inflated by Shopify checkout-start sessions",         "bad:Spike"],
+                    ["Web sessions starting at checkout",       "Rare",               "High volume",                                        "bad:Looks like a new Direct/Web traffic source"],
+                    ["Revenue attributed to App channel",       "Accurate",           "Significantly underreported",                        "bad:App loses credit for purchases"],
+                    ["Revenue attributed to Direct/Web",        "Accurate",           "Significantly overreported",                         "bad:Web gains spurious credit"],
+                    ["App funnel (browse → checkout → purchase)", "Connected end-to-end", "Drops off before checkout",                      "bad:Looks like checkout is broken"],
+                ],
+            },
+            body: "Before the migration, the entire purchase journey - from browsing the app through to completing checkout - was tracked as a single connected session. With Shopify, the checkout process opens in a separate web context inside the app, which our tracking treats as a brand new, unrelated visit. This means the purchase gets disconnected from the app session that led to it.\n\nThe most visible symptom is the app's conversion rate appearing to collapse entirely. This is not a real drop in performance - it is a reporting artefact caused by the tracking gap.\n\nFix:\nWe are switching to using the customer's Shopify account ID to link the app browsing session and the checkout session together. Since app users are always logged in, this identifier is reliably available at both ends of the journey, allowing them to be correctly joined back into one session.\n\nRemaining considerations:\n• Anonymous web browsing (not logged in) is unaffected - existing tracking continues to work for those users\n• Historical data will need to be reprocessed to ensure figures before and after the migration are directly comparable",
         },
     ],
     dashboards: [
@@ -1939,26 +2097,92 @@ function render() {
     if (issues.length === 0) {
         issuesList.innerHTML = `<div class="issues-empty">No known issues</div>`;
     } else {
-        issuesList.innerHTML = `<div class="issues-list">${issues.map(issue => {
+        issuesList.innerHTML = `<div class="issues-list">${issues.map((issue, i) => {
             const severityClass = `severity-${issue.severity || "medium"}`;
             const severityLabel = (issue.severity || "medium").toUpperCase();
             const detail = issue.detail ? `<div class="issue-detail">${issue.detail}</div>` : "";
-            const affected = issue.affectedDashboards && issue.affectedDashboards.length
-                ? `<div class="issue-affected">Affects: ${issue.affectedDashboards.join(", ")}</div>`
-                : "";
             return `
-                <div class="issue-item">
-                    <div class="issue-item-header">
-                        <span class="issue-severity ${severityClass}">${severityLabel}</span>
-                        <span class="issue-title">${issue.title}</span>
+                <a class="issue-item-link" href="#issue/${i}">
+                    <div class="issue-item">
+                        <div class="issue-item-header">
+                            <span class="issue-severity ${severityClass}">${severityLabel}</span>
+                            <span class="issue-title">${issue.title}</span>
+                        </div>
+                        ${detail}
                     </div>
-                    ${detail}${affected}
-                </div>`;
+                </a>`;
         }).join("")}</div>`;
     }
 }
 
+// ── ROUTING ──────────────────────────────────────────────────────────────
+function renderIssuePage(index) {
+    const issue = (DATA.dataIssues || [])[index];
+    if (!issue) { location.hash = ""; return; }
+
+    const severityClass = `severity-${issue.severity || "medium"}`;
+    const severityLabel = (issue.severity || "medium").toUpperCase();
+    const affected = issue.affectedDashboards && issue.affectedDashboards.length
+        ? `<div>Affects: ${issue.affectedDashboards.join(", ")}</div>` : "";
+    const body = issue.body
+        ? `<div class="issue-detail-body">${issue.body}</div>` : "";
+
+    let table = "";
+    if (issue.table) {
+        const headers = issue.table.headers.map(h => `<th>${h}</th>`).join("");
+        const rows = issue.table.rows.map(row => {
+            const cells = row.map((cell, i) => {
+                let cls = "";
+                let text = cell;
+                if (typeof cell === "string" && cell.startsWith("bad:"))  { cls = " class=\"cell-bad\"";  text = cell.slice(4); }
+                if (typeof cell === "string" && cell.startsWith("good:")) { cls = " class=\"cell-good\""; text = cell.slice(5); }
+                if (!text) cls = " class=\"cell-muted\"", text = "—";
+                return `<td${cls}>${text}</td>`;
+            }).join("");
+            return `<tr>${cells}</tr>`;
+        }).join("");
+        table = `
+            <div class="issue-detail-table-wrap">
+                <div class="issue-detail-table-label">Impact comparison</div>
+                <table class="issue-table">
+                    <thead><tr>${headers}</tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+    }
+
+    document.getElementById("issueDetailCard").innerHTML = `
+        <span class="issue-detail-severity ${severityClass}">${severityLabel}</span>
+        <div class="issue-detail-title">${issue.title}</div>
+        <div class="issue-detail-meta">
+            ${issue.detail ? `<div>${issue.detail}</div>` : ""}
+            ${affected}
+        </div>
+        ${table}
+        ${body}
+    `;
+}
+
+function route() {
+    const hash = location.hash;
+    const match = hash.match(/^#issue\/(\d+)$/);
+    const mainView = document.getElementById("mainView");
+    const issuePage = document.getElementById("issuePage");
+
+    if (match) {
+        renderIssuePage(parseInt(match[1], 10));
+        mainView.classList.add("hidden");
+        issuePage.classList.add("active");
+        window.scrollTo(0, 0);
+    } else {
+        mainView.classList.remove("hidden");
+        issuePage.classList.remove("active");
+    }
+}
+
+window.addEventListener("hashchange", route);
 render();
+route();
 </script>
 
 </body>
