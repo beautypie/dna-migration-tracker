@@ -19,8 +19,122 @@
             background: #f5f6fa;
             color: #2d3436;
             padding: 2rem;
-            max-width: 960px;
+            max-width: 1280px;
             margin: 0 auto;
+        }
+
+        .page-layout {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sidebar {
+            width: 260px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .issues-panel {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .issues-panel-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .issues-panel-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #2d3436;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .issues-count {
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: #e17055;
+            color: #fff;
+            border-radius: 10px;
+            padding: 0.1rem 0.45rem;
+            margin-left: auto;
+        }
+
+        .issues-count.zero {
+            background: #00b894;
+        }
+
+        .issues-list {
+            padding: 0.5rem 0;
+        }
+
+        .issue-item {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid #f8f9fa;
+            font-size: 0.8rem;
+        }
+
+        .issue-item:last-child {
+            border-bottom: none;
+        }
+
+        .issue-item-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.4rem;
+        }
+
+        .issue-severity {
+            font-size: 0.6rem;
+            font-weight: 700;
+            border-radius: 3px;
+            padding: 0.15rem 0.35rem;
+            flex-shrink: 0;
+            margin-top: 1px;
+            text-transform: uppercase;
+        }
+
+        .severity-high   { background: #fde8e4; color: #c0392b; }
+        .severity-medium { background: #fef9e7; color: #856404; }
+        .severity-low    { background: #eaf5fb; color: #2471a3; }
+
+        .issue-title {
+            color: #2d3436;
+            line-height: 1.35;
+        }
+
+        .issue-detail {
+            font-size: 0.75rem;
+            color: #636e72;
+            margin-top: 0.3rem;
+            line-height: 1.35;
+        }
+
+        .issue-affected {
+            font-size: 0.7rem;
+            color: #b2bec3;
+            margin-top: 0.3rem;
+        }
+
+        .issues-empty {
+            padding: 1rem;
+            font-size: 0.8rem;
+            color: #b2bec3;
+            text-align: center;
         }
 
         h1 {
@@ -294,13 +408,27 @@
 <p class="subtitle">Migration progress from legacy Analytics project to new BeautyPie Intelligence project</p>
 
 <div class="summary" id="summary"></div>
-<div class="legend">
-    <span class="legend-item"><span class="legend-dot" style="background:#00b894"></span> Migrated</span>
-    <span class="legend-item"><span class="legend-dot" style="background:#fdcb6e"></span> Deprecated</span>
-    <span class="legend-item"><span class="legend-dot" style="background:#dfe6e9"></span> Pending</span>
+
+<div class="page-layout">
+    <div class="main-content">
+        <div class="legend">
+            <span class="legend-item"><span class="legend-dot" style="background:#00b894"></span> Migrated</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#fdcb6e"></span> Deprecated</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#dfe6e9"></span> Pending</span>
+        </div>
+        <div class="dashboard-list" id="dashboardList"></div>
+        <p class="last-updated" id="lastUpdated"></p>
+    </div>
+    <div class="sidebar">
+        <div class="issues-panel">
+            <div class="issues-panel-header">
+                <span class="issues-panel-title">Data Issues &amp; Gaps</span>
+                <span class="issues-count" id="issuesCount">0</span>
+            </div>
+            <div id="issuesList"></div>
+        </div>
+    </div>
 </div>
-<div class="dashboard-list" id="dashboardList"></div>
-<p class="last-updated" id="lastUpdated"></p>
 
 <script>
 // ── DATA ────────────────────────────────────────────────────────────────
@@ -313,9 +441,22 @@
 //
 // Dashboard-level deprecated:
 //   Add wontdo: true and optional note to the dashboard object.
+//
+// Data issues:
+//   severity: "high" | "medium" | "low"
+//   title: short description (required)
+//   detail: longer explanation (optional)
+//   affectedDashboards: array of strings (optional)
 
 const DATA = {
     lastUpdated: "2026-06-29",
+    dataIssues: [
+        {
+            severity: "medium",
+            title: "iOS app orders mis-attributed post-migration",
+            detail: "Fix in progress — expected within a week.",
+        },
+    ],
     dashboards: [
         {
             name: "First Order Performance (UPDATED LIFECYCLE DEFINITION)",
@@ -1786,6 +1927,35 @@ function render() {
     });
 
     document.getElementById("lastUpdated").textContent = `Last updated: ${DATA.lastUpdated}`;
+
+    // ── DATA ISSUES SIDEBAR ──────────────────────────────────────────────
+    const issues = DATA.dataIssues || [];
+    const issuesCount = document.getElementById("issuesCount");
+    const issuesList = document.getElementById("issuesList");
+
+    issuesCount.textContent = issues.length;
+    issuesCount.className = "issues-count" + (issues.length === 0 ? " zero" : "");
+
+    if (issues.length === 0) {
+        issuesList.innerHTML = `<div class="issues-empty">No known issues</div>`;
+    } else {
+        issuesList.innerHTML = `<div class="issues-list">${issues.map(issue => {
+            const severityClass = `severity-${issue.severity || "medium"}`;
+            const severityLabel = (issue.severity || "medium").toUpperCase();
+            const detail = issue.detail ? `<div class="issue-detail">${issue.detail}</div>` : "";
+            const affected = issue.affectedDashboards && issue.affectedDashboards.length
+                ? `<div class="issue-affected">Affects: ${issue.affectedDashboards.join(", ")}</div>`
+                : "";
+            return `
+                <div class="issue-item">
+                    <div class="issue-item-header">
+                        <span class="issue-severity ${severityClass}">${severityLabel}</span>
+                        <span class="issue-title">${issue.title}</span>
+                    </div>
+                    ${detail}${affected}
+                </div>`;
+        }).join("")}</div>`;
+    }
 }
 
 render();
