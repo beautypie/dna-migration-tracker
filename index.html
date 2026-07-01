@@ -596,8 +596,14 @@
 //   affectedDashboards: array of strings (optional)
 
 const DATA = {
-    lastUpdated: "2026-06-30T09:41:00Z",
+    lastUpdated: "2026-07-01T09:00:00",
     dataIssues: [
+        {
+            severity: "high",
+            title: "Duplicate orders inflating order counts and revenue",
+            detail: "Automated Slack report delivery paused — expect a short delay to morning reports on 2 July.",
+            body: "During recent data migration work, historic orders were imported into Shopify on multiple occasions. This has resulted in a number of orders appearing more than once, each with a different Order ID. Because our reporting systems identify orders by their unique Order ID, these duplicates are currently being counted as separate, distinct orders — inflating order volumes and any revenue metrics derived from them.\n\nWe have identified a process to detect and remove the duplicate records, but applying the fix, refreshing all downstream data, and validating the results requires time to complete safely.\n\nImpact on report delivery:\nAutomated delivery of critical management dashboards to Slack has been paused for the morning of 2 July. We plan to run the fix and a full data refresh this evening. Before allowing automated sends to resume, the team will manually review the outputs in the morning to confirm everything looks correct. Please expect a short delay to these reports as a result.\n\nWe will send an update once the data has been validated and delivery has resumed.",
+        },
         {
             severity: "medium",
             title: "iOS app orders mis-attributed post-migration",
