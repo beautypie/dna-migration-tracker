@@ -541,7 +541,10 @@
 <body>
 
 <div id="mainView">
-    <h1>Lightdash Dashboard Shopify Migration Tracker</h1>
+    <div style="display:flex; align-items:baseline; gap:1rem; flex-wrap:wrap;">
+        <h1>Lightdash Dashboard Shopify Migration Tracker</h1>
+        <span id="lastUpdated" style="font-size:0.8rem; color:#636e72; white-space:nowrap;"></span>
+    </div>
     <p class="subtitle">Migration progress from legacy Analytics project to new BeautyPie Intelligence project</p>
 
     <div class="summary" id="summary"></div>
@@ -554,7 +557,6 @@
                 <span class="legend-item"><span class="legend-dot" style="background:#dfe6e9"></span> Pending</span>
             </div>
             <div class="dashboard-list" id="dashboardList"></div>
-            <p class="last-updated" id="lastUpdated"></p>
         </div>
         <div class="sidebar">
             <div class="issues-panel">
@@ -594,7 +596,7 @@
 //   affectedDashboards: array of strings (optional)
 
 const DATA = {
-    lastUpdated: "2026-06-29",
+    lastUpdated: "2026-06-30T09:41:00",
     dataIssues: [
         {
             severity: "medium",
@@ -1125,8 +1127,8 @@ const DATA = {
                 { name: "US Parent Category Availability", tab: "Yesterday's Snapshot", migrated: true },
                 { name: "UK OOS SKUs", tab: "Yesterday's Snapshot", migrated: true },
                 { name: "US OOS SKUs", tab: "Yesterday's Snapshot", migrated: true },
-                { name: "Stock Status Overview", tab: "Yesterday's Snapshot", migrated: false },
-                { name: "Gone out / back in stock by SKU", tab: "Yesterday's Snapshot", migrated: false },
+                { name: "Stock Status Overview", tab: "Yesterday's Snapshot", migrated: "wontdo", note: "No longer needed" },
+                { name: "Gone out / back in stock by SKU", tab: "Yesterday's Snapshot", migrated: true },
                 { name: "Main Table", tab: "Yesterday's Snapshot", migrated: true },
                 { name: "Copy of Gone out / back in stock by SKU", tab: "Yesterday's Snapshot", migrated: "wontdo", note: "Duplicate of existing tile" },
             ]
@@ -2084,7 +2086,9 @@ function render() {
         list.appendChild(row);
     });
 
-    document.getElementById("lastUpdated").textContent = `Last updated: ${DATA.lastUpdated}`;
+    const d = new Date(DATA.lastUpdated);
+    const formatted = d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "medium" });
+    document.getElementById("lastUpdated").textContent = `Last updated: ${formatted}`;
 
     // ── DATA ISSUES SIDEBAR ──────────────────────────────────────────────
     const issues = DATA.dataIssues || [];

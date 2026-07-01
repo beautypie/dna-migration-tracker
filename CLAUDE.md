@@ -36,7 +36,7 @@ Add `wontdo: true` (and optionally `note`) to the dashboard object:
 
 ### Updating `lastUpdated`
 
-Always update `DATA.lastUpdated` to today's date (ISO format `YYYY-MM-DD`) when making any changes.
+Always update `DATA.lastUpdated` to the current date and time (ISO format `YYYY-MM-DDTHH:MM:SS`) when making any changes. Example: `"2026-06-30T09:41:00"`.
 
 ---
 
