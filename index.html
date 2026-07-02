@@ -599,21 +599,39 @@ const DATA = {
     lastUpdated: "2026-07-02T09:00:00",
     dataIssues: [
         {
+            severity: "medium",
+            title: "Session definitions and conversion metrics under monitoring",
+            detail: "Post-migration session behaviour may look different - conversion metrics being monitored closely.",
+            body: "The move to Shopify introduces a change to the user identifier we use to link events together and calculate sessions. As a result, session figures and any metrics derived from them may look slightly different compared to pre-migration data - this is an expected consequence of the platform change rather than necessarily a data error.\n\nWe are monitoring conversion metrics closely over the coming days. In particular, first order conversion rate looked notably different on 1 July. This could be attributable to the session definition change, the duplicate orders issue, the UK/US session split issue, or normal day-to-day variance - we are working to understand the root cause.\n\nWe will update this notice once we have a clearer picture.",
+        },
+        {
+            severity: "medium",
+            title: "AUO calculated on products sold, not exploded kit units",
+            detail: "AUO is likely understated - kit units are not yet being exploded into individual items.",
+            body: "Historically, Average Units per Order (AUO) has been calculated by exploding kit products into their individual component units before counting. This means a kit containing three items would contribute 3 to the unit count rather than 1.\n\nIn the new Lightdash project, kits are not yet being exploded. AUO is currently calculated based on the number of products sold, treating each kit as a single unit. Given that membership kits now represent a significant share of orders, this is likely to have a material impact on AUO figures.\n\nPlease bear this in mind when reviewing AUO in the new Lightdash project, and avoid direct comparisons with historical AUO figures until this is resolved.",
+        },
+        {
+            severity: "medium",
+            title: "Shipping revenue metrics under validation",
+            detail: "Accuracy not yet confirmed - treat shipping revenue figures with caution.",
+            body: "We are currently in the process of validating the accuracy of shipping revenue data in the new Lightdash project. Until validation is complete, shipping revenue metrics may not be reliable.\n\nPlease treat any shipping revenue figures with caution and avoid using them for decision-making until we have confirmed they are accurate. We will update this notice once validation is complete.",
+        },
+        {
             severity: "high",
             title: "Session data cannot be split by store (UK / US)",
-            detail: "Under investigation — all session-based metrics currently show combined totals only.",
+            detail: "Under investigation - all session-based metrics currently show combined totals only.",
             body: "We are currently unable to attribute session data to an individual store (UK or US). This means any report or dashboard tile that breaks down sessions by country is unavailable or unreliable until the issue is resolved.\n\nAffected metrics include, but may not be limited to: session counts by region, conversion rates split by store, and any funnel or traffic-source analysis presented at a UK or US level.\n\nRoot cause investigation is under way. We will provide an update as soon as we have identified the cause and have a fix timeline.",
         },
         {
             severity: "low",
             title: "Duplicate historical orders identified in Shopify",
-            detail: "Low impact — dashboards currently report on post-migration orders only. Historical orders will be reintroduced once resolved.",
+            detail: "Low impact - dashboards currently report on post-migration orders only. Historical orders will be reintroduced once resolved.",
             body: "During recent data migration work, historic orders were imported into Shopify on multiple occasions, resulting in some orders appearing more than once with different Order IDs. Because our reporting systems identify orders by their unique Order ID, these duplicates would otherwise be counted as separate, distinct orders.\n\nTo avoid any impact on current reporting, we have made the decision to scope all dashboards in the new Lightdash account to orders placed through Shopify post-migration only. This means the duplicate historical records are excluded entirely and have no effect on the figures you see today.\n\nHistorical orders will be cleaned up and folded back into reporting in a future update, once the underlying data issues have been fully resolved and validated.",
         },
         {
             severity: "medium",
             title: "iOS app orders mis-attributed post-migration",
-            detail: "Session counts and revenue attribution are affected — click through for full impact details.",
+            detail: "Session counts and revenue attribution are affected - click through for full impact details.",
             table: {
                 headers: ["Metric", "Pre-Migration", "Post-Migration (unfixed)", "Change"],
                 rows: [
