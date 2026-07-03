@@ -13,6 +13,7 @@ concurrency:
   group: pages
   cancel-in-progress: true
 
+# force deploy
 jobs:
   deploy:
     runs-on: ubuntu-latest
