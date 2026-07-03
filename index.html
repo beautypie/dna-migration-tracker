@@ -381,6 +381,81 @@
             margin-top: 1.5rem;
         }
 
+        .updates-banner {
+            background: #f0f7ff;
+            border: 1px solid #c8e0fa;
+            border-radius: 8px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .updates-banner-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .updates-banner-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #2471a3;
+        }
+
+        .updates-banner-toggle {
+            font-size: 0.7rem;
+            color: #2471a3;
+            opacity: 0.7;
+        }
+
+        .updates-banner-body {
+            margin-top: 0.65rem;
+        }
+
+        .updates-group {
+            margin-bottom: 0.5rem;
+        }
+
+        .updates-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .updates-group-date {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #2471a3;
+            margin-bottom: 0.3rem;
+            opacity: 0.8;
+        }
+
+        .updates-group-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .updates-group-items li {
+            font-size: 0.82rem;
+            color: #2d3436;
+            padding: 0.15rem 0;
+            display: flex;
+            gap: 0.4rem;
+            align-items: flex-start;
+            line-height: 1.4;
+        }
+
+        .updates-group-items li::before {
+            content: "✓";
+            color: #00b894;
+            font-weight: 700;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+            margin-top: 0.05rem;
+        }
+
         .legend {
             display: flex;
             gap: 1.25rem;
@@ -547,6 +622,8 @@
     </div>
     <p class="subtitle">Migration progress from legacy Analytics project to new BeautyPie Intelligence project</p>
 
+    <div id="updatesBanner"></div>
+
     <div class="summary" id="summary"></div>
 
     <div class="page-layout">
@@ -596,7 +673,16 @@
 //   affectedDashboards: array of strings (optional)
 
 const DATA = {
-    lastUpdated: "2026-07-02T09:00:00",
+    lastUpdated: "2026-07-03T09:00:00",
+    recentUpdates: [
+        {
+            date: "2026-07-03",
+            items: [
+                "First Order Performance dashboard is now 100% complete (previously missing 2 x Net MAC tiles — US Overall Net MAC and UK Overall Net MAC — now migrated).",
+                "Expiry and Churn Trend dashboard is now available in BeautyPie Intelligence (7 tiles still pending migration).",
+            ]
+        },
+    ],
     dataIssues: [
         {
             severity: "medium",
@@ -670,7 +756,7 @@ const DATA = {
                 { name: "AOV for All Orders", tab: "🇺🇸 US", migrated: true },
                 { name: "GOOGLE - Cost per first order", tab: "🇺🇸 US", migrated: true },
                 { name: "GOOGLE - ROAS", tab: "🇺🇸 US", migrated: true },
-                { name: "US Overall Net MAC", tab: "🇺🇸 US", migrated: false },
+                { name: "US Overall Net MAC", tab: "🇺🇸 US", migrated: true },
                 { name: "Non-member Sessions", tab: "🇺🇸 US", migrated: true },
                 { name: "Total Revenue ", tab: "🇺🇸 US", migrated: true },
                 { name: "TOTAL/PRODUCT/MEMBERSHIP Revenue Trend", tab: "🇺🇸 US", migrated: true },
@@ -713,7 +799,7 @@ const DATA = {
                 { name: "META - CPFO (platform)", tab: "🇬🇧 UK", migrated: true },
                 { name: "GOOGLE - Cost per first order", tab: "🇬🇧 UK", migrated: true },
                 { name: "GOOGLE - ROAS", tab: "🇬🇧 UK", migrated: true },
-                { name: "UK Overall Net MAC", tab: "🇬🇧 UK", migrated: false },
+                { name: "UK Overall Net MAC", tab: "🇬🇧 UK", migrated: true },
                 { name: "Non-member Sessions", tab: "🇬🇧 UK", migrated: true },
                 { name: "TIKTOK - Cost per first order", tab: "🇬🇧 UK", migrated: true },
                 { name: "TIKTOK - ROAS", tab: "🇬🇧 UK", migrated: true },
@@ -1479,49 +1565,49 @@ const DATA = {
         {
             name: "Expiry and Churn Trend",
             tiles: [
-                { name: "Expiry Rate (last complete week)", tab: "Overall - ANNUAL", migrated: false },
-                { name: "Expired Memberships (last complete week)", tab: "Overall - ANNUAL", migrated: false },
-                { name: "Subject to Expiry (last complete week)", tab: "Overall - ANNUAL", migrated: false },
-                { name: "Churn Rate (last complete week)", tab: "Overall - ANNUAL", migrated: false },
-                { name: "Churned Memberships (last complete week)", tab: "Overall - ANNUAL", migrated: false },
-                { name: "Subject to Churn (last complete week)", tab: "Overall - ANNUAL", migrated: false },
-                { name: "Event Based Expiry Rate Trend", tab: "Overall - ANNUAL", migrated: false },
-                { name: "Event Based Churn Rate Trend", tab: "Overall - ANNUAL", migrated: false },
-                { name: "Expired Memberships", tab: "Overall - ANNUAL", migrated: false },
-                { name: "Subject to Expiry", tab: "Overall - ANNUAL", migrated: false },
-                { name: "Churned Memberships", tab: "Overall - ANNUAL", migrated: false },
-                { name: "Subject to Churn", tab: "Overall - ANNUAL", migrated: false },
-                { name: "Expiry Rate (last complete week)", tab: "Overall - MONTHLY", migrated: false },
-                { name: "Expired Memberships (last complete week)", tab: "Overall - MONTHLY", migrated: false },
-                { name: "Subject to Expiry (last complete week)", tab: "Overall - MONTHLY", migrated: false },
-                { name: "Churn Rate (last complete week)", tab: "Overall - MONTHLY", migrated: false },
-                { name: "Churned Memberships (last complete week)", tab: "Overall - MONTHLY", migrated: false },
-                { name: "Subject to Churn (last complete week)", tab: "Overall - MONTHLY", migrated: false },
-                { name: "Event Based Expiry Rate Trend", tab: "Overall - MONTHLY", migrated: false },
-                { name: "Event Based Churn Rate Trend", tab: "Overall - MONTHLY", migrated: false },
-                { name: "Expired Memberships", tab: "Overall - MONTHLY", migrated: false },
-                { name: "Subject to Expiry", tab: "Overall - MONTHLY", migrated: false },
-                { name: "Churned Memberships", tab: "Overall - MONTHLY", migrated: false },
-                { name: "Subject to Churn", tab: "Overall - MONTHLY", migrated: false },
-                { name: "Churned Memberships - Annual Only", tab: "Churn Breakdowns", migrated: false },
-                { name: "Event Based Churn Rate Trend - Annual Only", tab: "Churn Breakdowns", migrated: false },
-                { name: "Subject to Churn - Annual Only", tab: "Churn Breakdowns", migrated: false },
-                { name: "Churned Memberships", tab: "Churn Breakdowns", migrated: false },
-                { name: "Event Based Churn Rate Trend", tab: "Churn Breakdowns", migrated: false },
-                { name: "Subject to Churn", tab: "Churn Breakdowns", migrated: false },
-                { name: "Churned Paid Memberships by Term and Price", tab: "Churn Breakdowns", migrated: false },
-                { name: "Event Based Churn Rate by Term and Price Trend", tab: "Churn Breakdowns", migrated: false },
-                { name: "Subject to Churn by Term and Price", tab: "Churn Breakdowns", migrated: false },
+                { name: "Expiry Rate (last complete week)", tab: "Overall - ANNUAL", migrated: true },
+                { name: "Expired Memberships (last complete week)", tab: "Overall - ANNUAL", migrated: true },
+                { name: "Subject to Expiry (last complete week)", tab: "Overall - ANNUAL", migrated: true },
+                { name: "Churn Rate (last complete week)", tab: "Overall - ANNUAL", migrated: true },
+                { name: "Churned Memberships (last complete week)", tab: "Overall - ANNUAL", migrated: true },
+                { name: "Subject to Churn (last complete week)", tab: "Overall - ANNUAL", migrated: true },
+                { name: "Event Based Expiry Rate Trend", tab: "Overall - ANNUAL", migrated: true },
+                { name: "Event Based Churn Rate Trend", tab: "Overall - ANNUAL", migrated: true },
+                { name: "Expired Memberships", tab: "Overall - ANNUAL", migrated: true },
+                { name: "Subject to Expiry", tab: "Overall - ANNUAL", migrated: true },
+                { name: "Churned Memberships", tab: "Overall - ANNUAL", migrated: true },
+                { name: "Subject to Churn", tab: "Overall - ANNUAL", migrated: true },
+                { name: "Expiry Rate (last complete week)", tab: "Overall - MONTHLY", migrated: true },
+                { name: "Expired Memberships (last complete week)", tab: "Overall - MONTHLY", migrated: true },
+                { name: "Subject to Expiry (last complete week)", tab: "Overall - MONTHLY", migrated: true },
+                { name: "Churn Rate (last complete week)", tab: "Overall - MONTHLY", migrated: true },
+                { name: "Churned Memberships (last complete week)", tab: "Overall - MONTHLY", migrated: true },
+                { name: "Subject to Churn (last complete week)", tab: "Overall - MONTHLY", migrated: true },
+                { name: "Event Based Expiry Rate Trend", tab: "Overall - MONTHLY", migrated: true },
+                { name: "Event Based Churn Rate Trend", tab: "Overall - MONTHLY", migrated: true },
+                { name: "Expired Memberships", tab: "Overall - MONTHLY", migrated: true },
+                { name: "Subject to Expiry", tab: "Overall - MONTHLY", migrated: true },
+                { name: "Churned Memberships", tab: "Overall - MONTHLY", migrated: true },
+                { name: "Subject to Churn", tab: "Overall - MONTHLY", migrated: true },
+                { name: "Churned Memberships - Annual Only", tab: "Churn Breakdowns", migrated: true },
+                { name: "Event Based Churn Rate Trend - Annual Only", tab: "Churn Breakdowns", migrated: true },
+                { name: "Subject to Churn - Annual Only", tab: "Churn Breakdowns", migrated: true },
+                { name: "Churned Memberships", tab: "Churn Breakdowns", migrated: true },
+                { name: "Event Based Churn Rate Trend", tab: "Churn Breakdowns", migrated: true },
+                { name: "Subject to Churn", tab: "Churn Breakdowns", migrated: true },
+                { name: "Churned Paid Memberships by Term and Price", tab: "Churn Breakdowns", migrated: true },
+                { name: "Event Based Churn Rate by Term and Price Trend", tab: "Churn Breakdowns", migrated: true },
+                { name: "Subject to Churn by Term and Price", tab: "Churn Breakdowns", migrated: true },
                 { name: "Churned Memberships by Tenure (days) - Paid Members Only", tab: "Churn Breakdowns", migrated: false },
                 { name: "Event Based Churn Rate by Tenure (days) - Paid Members Only", tab: "Churn Breakdowns", migrated: false },
                 { name: "Subject to Churn by Tenure (days) - Paid Members Only", tab: "Churn Breakdowns", migrated: false },
-                { name: "Churn to Competitors", tab: "Cancellation", migrated: false },
+                { name: "Cancellation Reasons Distribution", tab: "Cancellation", migrated: false },
                 { name: "Cancellation to Competitors Distribution", tab: "Cancellation", migrated: false },
+                { name: "Cancellation Reasons", tab: "Cancellation", migrated: false },
                 { name: "Churn to Competitors", tab: "Cancellation", migrated: false },
-                { name: "Churn to Competitors", tab: "Cancellation", migrated: false },
-                { name: "Event Based Retention Rate and Retained Volumes", tab: "Retention and Renewal Rates", migrated: false },
-                { name: "Event Based Continuous Renewal Rate and Renewed Volumes", tab: "Retention and Renewal Rates", migrated: false },
-                { name: "Next 28-week Subject to Expired Annual Memberships from Continuous Membership (date filter doesn't work here)", tab: "Future Subject to Expiry Trend", migrated: false },
+                { name: "Event Based Retention Rate and Retained Volumes", tab: "Retention and Renewal Rates", migrated: true },
+                { name: "Event Based Continuous Renewal Rate and Renewed Volumes", tab: "Retention and Renewal Rates", migrated: true },
+                { name: "Next 28-week Subject to Expired Annual Memberships from Continuous Membership (date filter doesn't work here)", tab: "Future Subject to Expiry Trend", migrated: true },
             ]
         },
         {
@@ -2119,6 +2205,20 @@ function render() {
     const d = new Date(DATA.lastUpdated);
     const formatted = d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "medium" });
     document.getElementById("lastUpdated").textContent = `Last updated: ${formatted}`;
+
+    // ── RECENT UPDATES BANNER ────────────────────────────────────────────
+    const updates = DATA.recentUpdates || [];
+    const bannerEl = document.getElementById("updatesBanner");
+    if (updates.length > 0) {
+        const groupsHtml = updates.map(group => {
+            const dateLabel = new Date(group.date + "T00:00:00").toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" });
+            const itemsHtml = group.items.map(item => `<li>${item}</li>`).join("");
+            return `<div class="updates-group"><div class="updates-group-date">${dateLabel}</div><ul class="updates-group-items">${itemsHtml}</ul></div>`;
+        }).join("");
+        bannerEl.innerHTML = `<div class="updates-banner"><div class="updates-banner-header" onclick="const b=this.nextElementSibling;const t=this.querySelector('.updates-banner-toggle');b.style.display=b.style.display==='none'?'':'none';t.textContent=b.style.display==='none'?'Show':'Hide';"><span class="updates-banner-title">What\u2019s new</span><span class="updates-banner-toggle">Hide</span></div><div class="updates-banner-body">${groupsHtml}</div></div>`;
+    } else {
+        bannerEl.innerHTML = "";
+    }
 
     // ── DATA ISSUES SIDEBAR ──────────────────────────────────────────────
     const issues = DATA.dataIssues || [];
