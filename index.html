@@ -673,22 +673,24 @@
 //   affectedDashboards: array of strings (optional)
 
 const DATA = {
-    lastUpdated: "2026-07-03T09:00:00",
+    lastUpdated: "2026-07-06T10:00:00",
     recentUpdates: [
         {
-            date: "2026-07-03",
+            date: "2026-07-06",
             items: [
-                "First Order Performance dashboard is now 100% complete (previously missing 2 x Net MAC tiles).",
-                "Expiry and Churn Trend dashboard is now available in BeautyPie Intelligence (7 tiles still pending migration).",
+                "Session tracking issue upgraded to high severity - investigation complete. ~50% of sessions are not being recorded due to Shopify tracking limitations, and organic traffic is being misclassified as Direct. See issue for full details.",
+                "iOS app orders issue updated - double-counting concern ruled out; orders are missing from attribution rather than misattributed. Potential fix under evaluation.",
+                "New issue: ~5.5% of products have incorrect category labels affecting category-level reporting breakdowns.",
+                "Duplicate historical orders - Snowflake import now expected Tuesday 7th July, with historical orders in Lightdash by Wednesday 8th July.",
             ]
         },
     ],
     dataIssues: [
         {
-            severity: "medium",
-            title: "Session definitions and conversion metrics under monitoring",
-            detail: "Post-migration session behaviour may look different - conversion metrics being monitored closely.",
-            body: "The move to Shopify introduces a change to the user identifier we use to link events together and calculate sessions. As a result, session figures and any metrics derived from them may look slightly different compared to pre-migration data - this is an expected consequence of the platform change rather than necessarily a data error.\n\nWe are monitoring conversion metrics closely over the coming days. In particular, first order conversion rate looked notably different on 1 July. This could be attributable to the session definition change, the duplicate orders issue, the UK/US session split issue, or normal day-to-day variance - we are working to understand the root cause.\n\nUpdate (3 Jul 2026): We are currently cross-checking the volume of events we see on our side against click data from Meta. Non-member sessions from paid social are appearing unexpectedly low. It is not yet clear whether this reflects a data or tracking issue on our end, or whether it is a genuine drop in performance from the ads themselves. Investigation is ongoing.",
+            severity: "high",
+            title: "Shopify session tracking: under-recording and channel misattribution",
+            detail: "Two distinct issues identified - ~50% of sessions not being recorded, and organic traffic being misclassified as Direct.",
+            body: "Our investigation into post-migration session data has identified two separate issues with how Shopify records website visits. These are limitations of Shopify's tracking technology, not errors in our data pipeline.\n\nIssue 1: Roughly half of website sessions are not being recorded\n\nRecorded sessions dropped from ~34,000/day before the migration to ~16,000/day after. This is not a real drop in website traffic - ad platforms (Meta, Google, TikTok) confirm the same number of clicks and the same spend as before. The visits are happening, but Shopify's tracking is unable to see many of them.\n\nThe reason is that Shopify tracks visits using a browser-based script that is vulnerable to being blocked. Three things commonly block it:\n\n• Ad blockers - widely used browser extensions that block tracking scripts\n• Privacy features in Safari and Firefox - these browsers restrict the type of tracking Shopify uses\n• In-app browsers - when someone taps a link inside Instagram, Facebook, or TikTok, the built-in browser often blocks tracking entirely. This is particularly impactful because paid social traffic predominantly arrives this way\n\nPaid social is the hardest hit channel: only ~27% of paid social clicks are being recorded. Paid search fares somewhat better at ~59%.\n\nIssue 2: Organic traffic is being misclassified as Direct\n\nShopify's tracking runs in a restricted environment that cannot detect where a visitor came from (the \"referrer\"). For paid traffic this doesn't matter - paid links carry tracking codes (UTMs) in the URL itself. But organic search traffic (e.g. someone clicking a Google result) has no such codes, so when the referrer is stripped, those visits look identical to someone typing the URL directly.\n\nThe result is that Direct traffic appears inflated, while Organic traffic appears lower than it really is. The visits are still being counted - they are just labelled under the wrong channel.\n\nNext steps\n\nBoth of these issues are inherent limitations of Shopify's browser-based tracking approach, and there are a range of potential mitigations we are currently evaluating. However, some of these limitations may not be fully solvable, and there is a realistic possibility that post-migration session data will represent a \"new normal\" with lower recorded volumes and some channel misattribution compared to the pre-migration baseline. We will provide updates as our evaluation progresses.",
         },
         {
             severity: "medium",
@@ -711,26 +713,29 @@ const DATA = {
         {
             severity: "low",
             title: "Duplicate historical orders identified in Shopify",
-            detail: "Good progress - data cleanup in Shopify nearing completion. Snowflake import targeted for next week.",
-            body: "During recent data migration work, historic orders were imported into Shopify on multiple occasions, resulting in some orders appearing more than once with different Order IDs. Because our reporting systems identify orders by their unique Order ID, these duplicates would otherwise be counted as separate, distinct orders.\n\nTo avoid any impact on current reporting, we have made the decision to scope all dashboards in the new Lightdash account to orders placed through Shopify post-migration only. This means the duplicate historical records are excluded entirely and have no effect on the figures you see today.\n\nUpdate (3 Jul 2026): Significant progress has been made in fixing up the historical order data in Shopify. We are targeting next week to import the cleaned data into Snowflake, which will bring us another step closer to surfacing historical orders in Lightdash. We will update this notice once the Snowflake import is complete.",
+            detail: "Good progress - Snowflake import expected Tuesday 7th July, historical orders in Lightdash by Wednesday 8th July.",
+            body: "During recent data migration work, historic orders were imported into Shopify on multiple occasions, resulting in some orders appearing more than once with different Order IDs. Because our reporting systems identify orders by their unique Order ID, these duplicates would otherwise be counted as separate, distinct orders.\n\nTo avoid any impact on current reporting, we have made the decision to scope all dashboards in the new Lightdash account to orders placed through Shopify post-migration only. This means the duplicate historical records are excluded entirely and have no effect on the figures you see today.\n\nUpdate (3 Jul 2026): Significant progress has been made in fixing up the historical order data in Shopify. We are targeting next week to import the cleaned data into Snowflake, which will bring us another step closer to surfacing historical orders in Lightdash. We will update this notice once the Snowflake import is complete.\n\nUpdate (6 Jul 2026): The data cleanup in Shopify is nearing completion. We are expecting the cleaned historical order data to be imported into Snowflake by Tuesday 7th July, with historical orders surfaced in Lightdash dashboards by Wednesday 8th July.",
         },
         {
             severity: "medium",
-            title: "iOS app orders mis-attributed post-migration",
-            detail: "Session counts and revenue attribution are affected - click through for full impact details.",
+            title: "iOS app orders missing from session-based reporting",
+            detail: "App checkout orders are absent from attribution reporting - potential fix under evaluation.",
             table: {
-                headers: ["Metric", "Pre-Migration", "Post-Migration (unfixed)", "Change"],
+                headers: ["Metric", "Pre-Migration", "Post-Migration (current)", "Change"],
                 rows: [
-                    ["App session conversion rate",             "Accurate",           "Crashes toward 0",                                   "bad:Severe drop - looks like app stopped converting"],
-                    ["App sessions with a purchase",            "Normal",             "Near zero",                                          "bad:"],
-                    ["Web session count",                       "Normal",             "Inflated by Shopify checkout-start sessions",         "bad:Spike"],
-                    ["Web sessions starting at checkout",       "Rare",               "High volume",                                        "bad:Looks like a new Direct, Paid, or Web traffic source"],
-                    ["Revenue attributed to App channel",       "Accurate",           "Significantly underreported",                        "bad:App loses credit for purchases"],
-                    ["Revenue attributed to Direct/Paid/Web",   "Accurate",           "Significantly overreported",                         "bad:Other channels gain spurious credit"],
-                    ["App funnel (browse → checkout → purchase)", "Connected end-to-end", "Drops off before checkout",                      "bad:Looks like checkout is broken"],
+                    ["App session conversion rate",             "Accurate",           "Crashes toward 0",                                   "bad:App orders missing from attribution - looks like app stopped converting"],
+                    ["App funnel (browse → checkout → purchase)", "Connected end-to-end", "Drops off before checkout",                      "bad:Checkout step is invisible to reporting"],
+                    ["Revenue attributed to App channel",       "Accurate",           "Underreported",                                      "bad:App loses credit for purchases it generated"],
+                    ["Web session count",                       "Normal",             "Not inflated (earlier concern ruled out)",             "good:No double-counting occurring"],
                 ],
             },
-            body: "Before the migration, the entire purchase journey - from browsing the app through to completing checkout - was tracked as a single connected session. With Shopify, the checkout process opens in a separate web context inside the app, which our tracking treats as a brand new, unrelated visit. This means the purchase gets disconnected from the app session that led to it.\n\nThe most visible symptom is the app's conversion rate appearing to collapse entirely. This is not a real drop in performance - it is a reporting artefact caused by the tracking gap.\n\nRevenue currently attributed to the App channel will be redistributed across other channels - the exact split will depend on which UTM parameters are present in the Shopify checkout URL and will need to be verified empirically.\n\nFix:\nWe are switching to using the customer's Shopify account ID to link the app browsing session and the checkout session together. Since app users are always logged in, this identifier is reliably available at both ends of the journey, allowing them to be correctly joined back into one session.\n\nRemaining considerations:\n• Anonymous web browsing (not logged in) is unaffected - existing tracking continues to work for those users\n• Historical data will need to be reprocessed to ensure figures before and after the migration are directly comparable",
+            body: "What's happening\n\nWhen a customer shops in the iOS app, the checkout step opens inside a Shopify web page embedded within the app. Our investigation has found that Shopify's tracking does not fire at all inside this embedded checkout - no events are recorded for the checkout journey.\n\nThis is actually simpler than we originally feared. Our earlier concern was that the checkout would create a second, phantom session that would inflate web session counts and misattribute revenue to other channels. That is not happening - because no tracking fires at all, there is no double-counting issue.\n\nHowever, the consequence is that orders placed through the app checkout are completely absent from session-based reporting. They are not misattributed to the wrong channel - they are simply missing from attribution altogether. This is why the app's conversion rate appears to collapse: the browsing sessions are recorded, but the resulting purchases are invisible to the reporting system.\n\nPotential fix\n\nOne option we are evaluating is to change the source of order data in our reporting pipeline. Currently, orders are detected via Shopify's browser-based tracking, which (as described above) doesn't work for app checkouts. An alternative approach would be to use the authoritative order records from Shopify's back-end systems instead, which capture every order regardless of how the customer checked out.\n\nThis would involve linking orders back to browsing sessions using the customer's account and the timing of their activity. Since app users are always logged in, this should be feasible - but we are still assessing the approach and any trade-offs before committing to it.\n\nOn the positive side, the earlier concern about double-counted sessions has been ruled out, so no historical cleanup would be needed on that front. We will provide updates as our evaluation progresses.",
+        },
+        {
+            severity: "medium",
+            title: "Product categories incorrect for ~5.5% of products",
+            detail: "Some products have wrong or nonsensical category labels - working on a fix.",
+            body: "What's happening\n\nApproximately 5.5% of products in Shopify have incorrect category labels (e.g. category fields containing values like \"Black Friday 20% Off\" rather than a genuine product category such as \"Skincare\" or \"Moisturisers\"). These category fields are used to segment reporting by product type, so incorrect values will cause some products to appear under the wrong category or in nonsensical groupings in dashboards and reports.\n\nWe are working on a fix and will provide an update once it is in place.\n\nImpact in the meantime\n\nAny dashboard or report that breaks down data by product category may show slightly inaccurate groupings for the affected ~5.5% of products. Aggregate figures (total revenue, total orders, etc.) are not affected - only the category-level breakdown.",
         },
     ],
     dashboards: [
@@ -2270,7 +2275,7 @@ function renderIssuePage(index) {
                 let text = cell;
                 if (typeof cell === "string" && cell.startsWith("bad:"))  { cls = " class=\"cell-bad\"";  text = cell.slice(4); }
                 if (typeof cell === "string" && cell.startsWith("good:")) { cls = " class=\"cell-good\""; text = cell.slice(5); }
-                if (!text) cls = " class=\"cell-muted\"", text = "—";
+                if (!text) cls = " class=\"cell-muted\"", text = "-";
                 return `<td${cls}>${text}</td>`;
             }).join("");
             return `<tr>${cells}</tr>`;
