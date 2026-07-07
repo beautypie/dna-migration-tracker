@@ -56,11 +56,18 @@ Add entries to `DATA.dataIssues`:
 }
 ```
 
-- `severity` controls the badge colour: `high` = red, `medium` = amber, `low` = blue
+- `severity` controls the badge colour: `high` = red, `medium` = amber, `low` = blue, `resolved` = green
 - `title` and `detail` are shown in the sidebar summary
 - `body` is only shown on the detail page (use `\n\n` for paragraph breaks — rendered with `white-space: pre-wrap`)
 - `affectedDashboards` is optional; omit if not relevant
-- To resolve an issue, remove it from the array entirely
+
+### Resolving issues
+
+To mark an issue as resolved, set `severity: "resolved"`. This displays "RESOLVED" in a green badge and renders the title and detail in strikethrough on the main page. The detail page remains accessible so users can read the full history.
+
+Update the `detail` field to indicate the issue is resolved, and add a final dated update entry to the `body` confirming the resolution.
+
+Resolved issues should always be placed at the bottom of the `dataIssues` array, after all active issues.
 
 ---
 

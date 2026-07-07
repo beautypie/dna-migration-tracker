@@ -111,6 +111,9 @@
         .severity-high   { background: #fde8e4; color: #c0392b; }
         .severity-medium { background: #fef9e7; color: #856404; }
         .severity-low    { background: #eaf5fb; color: #2471a3; }
+        .severity-resolved { background: #e8f8f0; color: #1e8449; }
+        .issue-item.resolved .issue-title,
+        .issue-item.resolved .issue-detail { text-decoration: line-through; color: #999; }
 
         .issue-title {
             color: #2d3436;
@@ -673,15 +676,17 @@
 //   affectedDashboards: array of strings (optional)
 
 const DATA = {
-    lastUpdated: "2026-07-06T10:00:00",
+    lastUpdated: "2026-07-07T10:00:00",
     recentUpdates: [
         {
-            date: "2026-07-06",
+            date: "2026-07-07",
             items: [
-                "Session tracking issue upgraded to high severity - investigation complete. ~50% of sessions are not being recorded due to Shopify tracking limitations, and organic traffic is being misclassified as Direct. See issue for full details.",
-                "iOS app orders issue updated - double-counting concern ruled out; orders are missing from attribution rather than misattributed. Potential fix under evaluation.",
-                "New issue: ~5.5% of products have incorrect category labels affecting category-level reporting breakdowns.",
-                "Duplicate historical orders - Snowflake import now expected Tuesday 7th July, with historical orders in Lightdash by Wednesday 8th July.",
+                "Updated the issue \"Shopify session tracking: under-recording and channel misattribution\" with more accurate detail.",
+                "\"Session data cannot be split by store (UK / US)\" issue downgraded - only affects ~7% of sessions (iOS only); web sessions unaffected.",
+                "Update to \"Product categories incorrect for ~5.5% of products\" issue - data corrected, expected to flow through to Lightdash tomorrow morning.",
+                "Complete resolution of \"Duplicate historical orders identified in Shopify\" issue - historical orders now available in Lightdash.",
+                "New issue: membership renewals being counted as separate orders - order counts may be overstated.",
+                "New issue: historical order discounts missing - pre-migration product sales appear inflated.",
             ]
         },
     ],
@@ -708,22 +713,16 @@ const DATA = {
             body: "What's happening\n\nWhen a customer shops in the iOS app, the checkout step opens inside a Shopify web page embedded within the app. Our investigation has found that Shopify's tracking does not fire at all inside this embedded checkout - no events are recorded for the checkout journey.\n\nThis is actually simpler than we originally feared. Our earlier concern was that the checkout would create a second, phantom session that would inflate web session counts and misattribute revenue to other channels. That is not happening - because no tracking fires at all, there is no double-counting issue.\n\nHowever, the consequence is that orders placed through the app checkout are completely absent from session-based reporting. They are not misattributed to the wrong channel - they are simply missing from attribution altogether. This is why the app's conversion rate appears to collapse: the browsing sessions are recorded, but the resulting purchases are invisible to the reporting system.\n\nPotential fix\n\nOne option we are evaluating is to change the source of order data in our reporting pipeline. Currently, orders are detected via Shopify's browser-based tracking, which (as described above) doesn't work for app checkouts. An alternative approach would be to use the authoritative order records from Shopify's back-end systems instead, which capture every order regardless of how the customer checked out.\n\nThis would involve linking orders back to browsing sessions using the customer's account and the timing of their activity. Since app users are always logged in, this should be feasible - but we are still assessing the approach and any trade-offs before committing to it.\n\nOn the positive side, the earlier concern about double-counted sessions has been ruled out, so no historical cleanup would be needed on that front. We will provide updates as our evaluation progresses.",
         },
         {
-            severity: "medium",
+            severity: "low",
             title: "Product categories incorrect for ~5.5% of products",
-            detail: "Some products have wrong or nonsensical category labels - working on a fix.",
-            body: "What's happening\n\nApproximately 5.5% of products in Shopify have incorrect category labels (e.g. category fields containing values like \"Black Friday 20% Off\" rather than a genuine product category such as \"Skincare\" or \"Moisturisers\"). These category fields are used to segment reporting by product type, so incorrect values will cause some products to appear under the wrong category or in nonsensical groupings in dashboards and reports.\n\nWe are working on a fix and will provide an update once it is in place.\n\nImpact in the meantime\n\nAny dashboard or report that breaks down data by product category may show slightly inaccurate groupings for the affected ~5.5% of products. Aggregate figures (total revenue, total orders, etc.) are not affected - only the category-level breakdown.",
+            detail: "Data corrected in Shopify and imported into Snowflake - expected to be fully resolved in Lightdash tomorrow morning.",
+            body: "What's happening\n\nApproximately 5.5% of products in Shopify have incorrect category labels (e.g. category fields containing values like \"Black Friday 20% Off\" rather than a genuine product category such as \"Skincare\" or \"Moisturisers\"). These category fields are used to segment reporting by product type, so incorrect values will cause some products to appear under the wrong category or in nonsensical groupings in dashboards and reports.\n\nUpdate (7 Jul 2026): The incorrect category data has been rectified in Shopify and the corrected data has been imported into Snowflake. When our main processing run happens tomorrow morning, the corrected categories should flow through to Lightdash and this issue will be resolved.\n\nImpact in the meantime\n\nUntil the processing run completes tomorrow morning, dashboards and reports that break down data by product category may still show slightly inaccurate groupings for the affected ~5.5% of products. Aggregate figures (total revenue, total orders, etc.) are not affected - only the category-level breakdown.",
         },
         {
             severity: "low",
-            title: "Duplicate historical orders identified in Shopify",
-            detail: "Good progress - Snowflake import expected Tuesday 7th July, historical orders in Lightdash by Wednesday 8th July.",
-            body: "During recent data migration work, historic orders were imported into Shopify on multiple occasions, resulting in some orders appearing more than once with different Order IDs. Because our reporting systems identify orders by their unique Order ID, these duplicates would otherwise be counted as separate, distinct orders.\n\nTo avoid any impact on current reporting, we have made the decision to scope all dashboards in the new Lightdash account to orders placed through Shopify post-migration only. This means the duplicate historical records are excluded entirely and have no effect on the figures you see today.\n\nUpdate (3 Jul 2026): Significant progress has been made in fixing up the historical order data in Shopify. We are targeting next week to import the cleaned data into Snowflake, which will bring us another step closer to surfacing historical orders in Lightdash. We will update this notice once the Snowflake import is complete.\n\nUpdate (6 Jul 2026): The data cleanup in Shopify is nearing completion. We are expecting the cleaned historical order data to be imported into Snowflake by Tuesday 7th July, with historical orders surfaced in Lightdash dashboards by Wednesday 8th July.",
-        },
-        {
-            severity: "high",
             title: "Session data cannot be split by store (UK / US)",
-            detail: "Under investigation - all session-based metrics currently show combined totals only.",
-            body: "We are currently unable to attribute session data to an individual store (UK or US). This means any report or dashboard tile that breaks down sessions by country is unavailable or unreliable until the issue is resolved.\n\nAffected metrics include, but may not be limited to: session counts by region, conversion rates split by store, and any funnel or traffic-source analysis presented at a UK or US level.\n\nRoot cause investigation is under way. We will provide an update as soon as we have identified the cause and have a fix timeline.",
+            detail: "Affects ~7% of sessions (iOS only) - web sessions unaffected. Fix expected by end of this week.",
+            body: "A subset of iOS app sessions cannot currently be attributed to an individual store (UK or US). This affects approximately 7% of overall sessions. Web sessions are completely unaffected and are correctly split by store.\n\nFor any report or dashboard tile that breaks down sessions by country, the impact is limited to this small proportion of iOS sessions. All other session data, including the vast majority of traffic, is correctly attributed.\n\nWe are working on a fix and expect to have this resolved by the end of this week.",
         },
         {
             severity: "medium",
@@ -736,6 +735,24 @@ const DATA = {
             title: "Shipping revenue metrics under validation",
             detail: "Accuracy not yet confirmed - treat shipping revenue figures with caution.",
             body: "We are currently in the process of validating the accuracy of shipping revenue data in the new Lightdash project. Until validation is complete, shipping revenue metrics may not be reliable.\n\nPlease treat any shipping revenue figures with caution and avoid using them for decision-making until we have confirmed they are accurate. We will update this notice once validation is complete.",
+        },
+        {
+            severity: "medium",
+            title: "Membership renewals being counted as separate orders",
+            detail: "Order counts and related metrics may be overstated - renewals are currently included as orders.",
+            body: "In the pre-Shopify world, membership renewals were not counted as separate orders in our reporting. Since the migration, Shopify treats each membership renewal as its own order, which means renewals are now being included in order counts and any metrics derived from them (e.g. total orders, average order value, orders per customer).\n\nThis represents a change in how orders are defined rather than a data error, but it means that post-migration order figures are not directly comparable with pre-migration figures.\n\nWe are considering a fix to exclude membership renewals from order counts, which would bring reporting back in line with the previous definition. We will provide an update once a decision has been made.",
+        },
+        {
+            severity: "medium",
+            title: "Historical order discounts missing - pre-migration product sales appear inflated",
+            detail: "Orders placed before 1st July may show higher product sales than expected due to missing discount data.",
+            body: "When historical orders were imported into Shopify, the discount information on those orders was not included in enough detail for our reporting to apply them correctly. As a result, any orders placed before the migration on 1st July that originally had discounts are currently showing their full, undiscounted values in Lightdash.\n\nThis means that product sales figures for the pre-migration period will appear inflated compared to what they should be. Post-migration orders (from 1st July onwards) are unaffected - discounts on new Shopify orders are recorded correctly.\n\nWe have identified a workaround that involves using our historical legacy data to fill in the missing discount detail on these imported orders. Until that workaround is in place, please be aware that pre-migration product sales figures will be overstated. We will provide an update once the fix has been applied.",
+        },
+        {
+            severity: "resolved",
+            title: "Duplicate historical orders identified in Shopify",
+            detail: "Resolved - historical order data has been cleaned up and is now available in Lightdash.",
+            body: "During recent data migration work, historic orders were imported into Shopify on multiple occasions, resulting in some orders appearing more than once with different Order IDs. Because our reporting systems identify orders by their unique Order ID, these duplicates would otherwise be counted as separate, distinct orders.\n\nTo avoid any impact on current reporting, we had scoped all dashboards in the new Lightdash account to orders placed through Shopify post-migration only, excluding the duplicate historical records entirely.\n\nUpdate (3 Jul 2026): Significant progress has been made in fixing up the historical order data in Shopify. We are targeting next week to import the cleaned data into Snowflake, which will bring us another step closer to surfacing historical orders in Lightdash.\n\nUpdate (6 Jul 2026): The data cleanup in Shopify is nearing completion. We are expecting the cleaned historical order data to be imported into Snowflake by Tuesday 7th July, with historical orders surfaced in Lightdash dashboards by Wednesday 8th July.\n\nUpdate (7 Jul 2026): This issue is now resolved. The cleaned historical order data has been imported into Snowflake and historical orders are now available in Lightdash dashboards.",
         },
     ],
     dashboards: [
@@ -2240,9 +2257,10 @@ function render() {
             const severityClass = `severity-${issue.severity || "medium"}`;
             const severityLabel = (issue.severity || "medium").toUpperCase();
             const detail = issue.detail ? `<div class="issue-detail">${issue.detail}</div>` : "";
+            const resolvedClass = issue.severity === "resolved" ? " resolved" : "";
             return `
                 <a class="issue-item-link" href="#issue/${i}">
-                    <div class="issue-item">
+                    <div class="issue-item${resolvedClass}">
                         <div class="issue-item-header">
                             <span class="issue-severity ${severityClass}">${severityLabel}</span>
                             <span class="issue-title">${issue.title}</span>
