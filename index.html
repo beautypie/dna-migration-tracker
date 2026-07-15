@@ -682,7 +682,7 @@ const DATA = {
             date: "2026-07-14",
             items: [
                 "Member Core Metrics dashboard has been fully migrated.",
-                "Product Insights dashboard released, with a handful of tiles still pending.",
+                "Product Insights dashboard released - all tiles migrated except Avg Star Rating.",
             ]
         },
     ],
@@ -1940,10 +1940,10 @@ const DATA = {
         {
             name: "Product Insights",
             tiles: [
-                { name: "UK Forecast Accuracy (3M Lag)", tab: "Demand Planning", migrated: false },
-                { name: "US Forecast Accuracy (3M Lag)", tab: "Demand Planning", migrated: false },
-                { name: "UK Attainment (3M Lag)", tab: "Demand Planning", migrated: false },
-                { name: "US Attainment (3M Lag)", tab: "Demand Planning", migrated: false },
+                { name: "UK Forecast Accuracy (3M Lag)", tab: "Demand Planning", migrated: true },
+                { name: "US Forecast Accuracy (3M Lag)", tab: "Demand Planning", migrated: true },
+                { name: "UK Attainment (3M Lag)", tab: "Demand Planning", migrated: true },
+                { name: "US Attainment (3M Lag)", tab: "Demand Planning", migrated: true },
                 { name: "Last 3 months vs same period LY", tab: "Demand Planning", migrated: true },
                 { name: "YoY Product Performance", tab: "Demand Planning", migrated: true },
                 { name: "Copy of Copy of Copy of Units x Member Price", tab: "Demand Planning", migrated: true },
@@ -1955,8 +1955,8 @@ const DATA = {
                 { name: "Last Month Units x Member Price", tab: "Overview", migrated: true },
                 { name: "Monthly Units Sold and Future Forecast", tab: "Overview", migrated: true },
                 { name: "Last Month Units", tab: "Overview", migrated: true },
-                { name: "Forecast Accuracy Last Month", tab: "Overview", migrated: false },
-                { name: "Attainment Last Month", tab: "Overview", migrated: false },
+                { name: "Forecast Accuracy Last Month", tab: "Overview", migrated: true },
+                { name: "Attainment Last Month", tab: "Overview", migrated: true },
                 { name: "Trend", tab: "Overview", migrated: true },
                 { name: "ABCD Rank", tab: "Overview", migrated: true },
                 { name: "UK SOH", tab: "Overview", migrated: true },
